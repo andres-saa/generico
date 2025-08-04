@@ -670,7 +670,7 @@ for folder in ("nginx_dev","nginx"):
     mk(base / "conf.d")
     wr(base/"proxy_params", PROXY_PARAMS)
     dom = domain if (folder == "nginx") else "127.0.0.1.nip.io"
-    vue_port, nuxt_port = 5173, 3000
+    vue_port, nuxt_port = 80, 3000
     servers = []
     for name, kind in fronts:
         svc = f"front_{name}"

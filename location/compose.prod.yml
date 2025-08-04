@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  api_location1:
+    build: { context: ./backend/location1, target: prod }
+    container_name: api_location1
+    env_file: ./backend/location1/.env
+    restart: unless-stopped
+
+  api_location2:
+    build: { context: ./backend/location2, target: prod }
+    container_name: api_location2
+    env_file: ./backend/location2/.env
+    restart: unless-stopped
+
+  front_location1:
+    build: { context: ./frontend/location1, target: prod }
+    container_name: front_location1
+    env_file: ./frontend/location1/.env_prod
+    restart: unless-stopped
+
+  front_location2:
+    build: { context: ./frontend/location2, target: prod }
+    container_name: front_location2
+    env_file: ./frontend/location2/.env_prod
+    restart: unless-stopped
+
+  proxy:
+    image: nginx:1.27-alpine
+    container_name: proxy
+    ports: [ '80:80' ]
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/proxy_params:/etc/nginx/proxy_params:ro
+    depends_on: [api_location1, api_location2, front_location1, front_location2]
+    restart: unless-stopped
+
