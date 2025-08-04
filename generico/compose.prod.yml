@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  api_generico1:
+    build: { context: ./backend/generico1, target: prod }
+    container_name: api_generico1
+    env_file: ./backend/generico1/.env
+    restart: unless-stopped
+
+  api_generico2:
+    build: { context: ./backend/generico2, target: prod }
+    container_name: api_generico2
+    env_file: ./backend/generico2/.env
+    restart: unless-stopped
+
+  front_vue1:
+    build: { context: ./frontend/vue1, target: prod }
+    container_name: front_vue1
+    env_file: ./frontend/vue1/.env_prod
+    restart: unless-stopped
+
+  front_nuxt1:
+    build: { context: ./frontend/nuxt1, target: prod }
+    container_name: front_nuxt1
+    env_file: ./frontend/nuxt1/.env_prod
+    restart: unless-stopped
+
+  proxy:
+    image: nginx:1.27-alpine
+    container_name: proxy
+    ports: [ '80:80' ]
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/proxy_params:/etc/nginx/proxy_params:ro
+    depends_on: [api_generico1, api_generico2, front_vue1, front_nuxt1]
+    restart: unless-stopped
+

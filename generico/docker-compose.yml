@@ -1,0 +1,67 @@
+version: '3.9'
+services:
+  api_generico1:
+    build: { context: ./backend/generico1, target: dev }
+    container_name: api_generico1
+    env_file: ./backend/generico1/.env
+    volumes:
+      - ./backend/generico1/app:/code
+    environment: 
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - '8000:80'
+    restart: unless-stopped
+
+  api_generico2:
+    build: { context: ./backend/generico2, target: dev }
+    container_name: api_generico2
+    env_file: ./backend/generico2/.env
+    volumes:
+      - ./backend/generico2/app:/code
+    environment: 
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - '8001:80'
+    restart: unless-stopped
+
+  front_vue1:
+    build: { context: ./frontend/vue1, target: dev }
+    container_name: front_vue1
+    volumes:
+      - ./frontend/vue1/app:/app
+      - front_vue1_node_modules:/app/node_modules
+    environment: 
+      CHOKIDAR_USEPOLLING: "true"
+    env_file: ./frontend/vue1/.env
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - '5173:5173'
+    restart: unless-stopped
+
+  front_nuxt1:
+    build: { context: ./frontend/nuxt1, target: dev }
+    container_name: front_nuxt1
+    volumes:
+      - ./frontend/nuxt1/app:/app
+      - front_nuxt1_node_modules:/app/node_modules
+    environment: 
+      CHOKIDAR_USEPOLLING: "true"
+    env_file: ./frontend/nuxt1/.env
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+
+  proxy:
+    image: nginx:1.27-alpine
+    container_name: generico_proxy
+    ports: [ '80:80' ]
+    volumes:
+      - ./nginx_dev/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx_dev/proxy_params:/etc/nginx/proxy_params:ro
+    depends_on: [api_generico1, api_generico2, front_vue1, front_nuxt1]
+    restart: unless-stopped
+
+volumes:
+  front_vue1_node_modules:
+  front_nuxt1_node_modules:
